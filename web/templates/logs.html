@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Logs - IDS{% endblock %}
+
+{% block content %}
+    <h1>Logs</h1>
+    <p>Complete activity history — every file and URL check performed by the system.</p>
+
+    <div class="card">
+        <label>Filter by verdict:
+            <select id="verdictFilter" onchange="filterTable()">
+                <option value="ALL">All</option>
+                <option value="ALLOW">ALLOW</option>
+                <option value="BLOCK">BLOCK</option>
+                <option value="SUSPICIOUS">SUSPICIOUS</option>
+            </select>
+        </label>
+        <table id="logTable">
+            <tr><th>Timestamp</th><th>Level</th><th>Target</th><th>Verdict</th><th>Reason</th></tr>
+            {% for entry in log_entries %}
+            <tr class="log-row" data-verdict="{{ entry.verdict }}">
+                <td>{{ entry.timestamp }}</td>
+                <td>{{ entry.level }}</td>
+                <td>{{ entry.target }}</td>
+                <td class="{{ entry.verdict }}">{{ entry.verdict }}</td>
+                <td>{{ entry.reason }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+    <script>
+    function filterTable() {
+        const filter = document.getElementById("verdictFilter").value;
+        const rows = document.querySelectorAll(".log-row");
+        rows.forEach(row => {
+            if (filter === "ALL" || row.dataset.verdict === filter) {
+                row.style.display = "";
+            } else {
+                row.style.display = "none";
+            }
+        });
+    }
+    </script>
+{% endblock %}

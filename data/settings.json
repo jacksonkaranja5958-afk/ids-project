@@ -1,0 +1,5 @@
+{
+  "fail_policy": "fail-open",
+  "sandbox_entropy_threshold": 6.4,
+  "log_retention_limit": 196
+}

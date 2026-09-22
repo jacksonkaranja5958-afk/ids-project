@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Alerts - IDS{% endblock %}
+
+{% block content %}
+    <h1>Alerts</h1>
+    <p>Showing all BLOCK and SUSPICIOUS verdicts from your activity log.</p>
+
+    <div class="card">
+        <table>
+            <tr><th>Timestamp</th><th>Target</th><th>Verdict</th><th>Reason</th></tr>
+            {% for entry in alert_entries %}
+            <tr>
+                <td>{{ entry.timestamp }}</td>
+                <td>{{ entry.target }}</td>
+                <td class="{{ entry.verdict }}">{{ entry.verdict }}</td>
+                <td>{{ entry.reason }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% if not alert_entries %}
+        <p>No alerts recorded yet.</p>
+        {% endif %}
+    </div>
+{% endblock %}

@@ -4,6 +4,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, precision_score, recall_score, confusion_matrix
 
+
 def extract_features(url):
     """Converts a URL into numeric features, including entropy and character-composition signals."""
     from urllib.parse import urlparse
@@ -66,8 +67,12 @@ def build_combined_dataset(sample_size=15000):
     print(f"Saved combined dataset: {len(result)} rows to data/combined_training_data.csv")
 
     return result
+
+
 def train_model(csv_path):
     """Trains a phishing classifier from a CSV with pre-computed features and a target column."""
+    import json
+
     data = pd.read_csv(csv_path)
 
     X = data.drop(columns=["target"])
@@ -92,7 +97,22 @@ def train_model(csv_path):
     print(f"Recall:    {recall:.2%}  (of actual phishing URLs, % that were caught)")
     print(f"Confusion matrix -> True Negatives: {tn}, False Positives: {fp}, False Negatives: {fn}, True Positives: {tp}")
 
-    return model 
+    metrics = {
+        "accuracy": round(accuracy, 4),
+        "precision": round(precision, 4),
+        "recall": round(recall, 4),
+        "true_negatives": int(tn),
+        "false_positives": int(fp),
+        "false_negatives": int(fn),
+        "true_positives": int(tp),
+        "training_examples": len(X_train),
+        "test_examples": len(X_test)
+    }
+    with open("data/model_metrics.json", "w") as f:
+        json.dump(metrics, f, indent=2)
+
+    return model
+
 
 def show_feature_importance(model, feature_names):
     """Prints which features the model relies on most heavily."""
@@ -101,7 +121,8 @@ def show_feature_importance(model, feature_names):
 
     print("\nFeature importance (highest impact first):")
     for name, importance in ranked:
-        print(f"  {name}: {importance:.3f}")       
+        print(f"  {name}: {importance:.3f}")
+
 
 import joblib
 
@@ -123,7 +144,8 @@ def check_phishing_url(url, model):
     features = extract_features(url)
     X = pd.DataFrame([features])
     prediction = model.predict(X)[0]
-    return prediction == 1    
+    return prediction == 1
+
 
 if __name__ == "__main__":
     build_combined_dataset(sample_size=15000)

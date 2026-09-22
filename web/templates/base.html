@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% block title %}IDS Dashboard{% endblock %}</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; margin: 0; display: flex; background: #f4f4f4; }
+
+        .sidebar {
+            width: 220px;
+            background: #1F2430;
+            color: white;
+            min-height: 100vh;
+            padding: 20px 0;
+        }
+        .sidebar h2 { padding: 0 20px; font-size: 18px; margin-bottom: 20px; }
+        .sidebar a {
+            display: block;
+            padding: 12px 20px;
+            color: #C5C8D0;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .sidebar a:hover { background: #2B303B; color: white; }
+        .sidebar a.active { background: #3B6FE0; color: white; }
+
+        .main { flex: 1; padding: 30px; }
+        .card { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        input[type=text] { width: 300px; padding: 8px; }
+        button { padding: 8px 16px; background: #3B6FE0; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { text-align: left; padding: 8px; border-bottom: 1px solid #ddd; }
+        .BLOCK { color: #D33A3A; font-weight: bold; }
+        .ALLOW { color: #159A48; font-weight: bold; }
+        .SUSPICIOUS { color: #D97706; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>IDS System</h2>
+        <a href="/" class="{% if active_page == 'dashboard' %}active{% endif %}">Dashboard</a>
+        <a href="/live-monitoring" class="{% if active_page == 'live' %}active{% endif %}">Live Monitoring</a>
+        <a href="/alerts" class="{% if active_page == 'alerts' %}active{% endif %}">Alerts</a>
+        <a href="/incidents" class="{% if active_page == 'incidents' %}active{% endif %}">Threats / Incidents</a>
+        <a href="/network" class="{% if active_page == 'network' %}active{% endif %}">Network Traffic</a>
+        <a href="/devices" class="{% if active_page == 'devices' %}active{% endif %}">Devices / Hosts</a>
+        <a href="/logs" class="{% if active_page == 'logs' %}active{% endif %}">Logs</a>
+        <a href="/detection-engine" class="{% if active_page == 'engine' %}active{% endif %}">Detection Engine</a>
+        <a href="/reports" class="{% if active_page == 'reports' %}active{% endif %}">Reports</a>
+        <a href="/settings" class="{% if active_page == 'settings' %}active{% endif %}">Settings</a>
+    </div>
+
+    <div class="main">
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>

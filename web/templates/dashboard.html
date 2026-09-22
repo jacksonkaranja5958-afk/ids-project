@@ -1,22 +1,8 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>IDS Dashboard</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 40px; background: #f4f4f4; }
-        h1 { color: #222; }
-        .card { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        input[type=text] { width: 300px; padding: 8px; }
-        button { padding: 8px 16px; background: #3B6FE0; color: white; border: none; border-radius: 4px; cursor: pointer; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { text-align: left; padding: 8px; border-bottom: 1px solid #ddd; }
-        .BLOCK { color: #D33A3A; font-weight: bold; }
-        .ALLOW { color: #159A48; font-weight: bold; }
-        .SUSPICIOUS { color: #D97706; font-weight: bold; }
-    </style>
-</head>
-<body>
-    <h1>IDS Dashboard — Phishing &amp; Malware Detection</h1>
+{% extends "base.html" %}
+{% block title %}Dashboard - IDS{% endblock %}
+
+{% block content %}
+    <h1>Dashboard</h1>
 
     <div class="card">
         <h2>Verdict Summary</h2>
@@ -95,10 +81,7 @@
                     backgroundColor: ["#159A48", "#D33A3A", "#D97706"]
                 }]
             },
-            options: {
-                scales: { y: { beginAtZero: true } }
-            }
+            options: { scales: { y: { beginAtZero: true } } }
         });
     </script>
-</body>
-</html>
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Detection Engine - IDS{% endblock %}
+
+{% block content %}
+    <h1>Detection Engine</h1>
+    <p>Status and statistics for each detection module.</p>
+
+    <div class="card">
+        <h2>Hash Matching</h2>
+        <p><strong>Status:</strong> <span class="ALLOW">Active</span></p>
+        <p>Computes SHA-256 fingerprints and checks them against a known-malicious hash list. Fastest check, runs first.</p>
+    </div>
+
+    <div class="card">
+        <h2>Heuristic Analysis</h2>
+        <p><strong>Status:</strong> <span class="ALLOW">Active</span></p>
+        <p>Detects disguised file extensions using pattern-based structural analysis.</p>
+    </div>
+
+    <div class="card">
+        <h2>ML Classifier (Phishing)</h2>
+        <p><strong>Status:</strong> <span class="ALLOW">Active</span></p>
+        {% if metrics %}
+        <table>
+            <tr><th>Metric</th><th>Value</th></tr>
+            <tr><td>Accuracy</td><td>{{ (metrics.accuracy * 100) | round(2) }}%</td></tr>
+            <tr><td>Precision</td><td>{{ (metrics.precision * 100) | round(2) }}%</td></tr>
+            <tr><td>Recall</td><td>{{ (metrics.recall * 100) | round(2) }}%</td></tr>
+            <tr><td>Training examples</td><td>{{ metrics.training_examples }}</td></tr>
+            <tr><td>Test examples</td><td>{{ metrics.test_examples }}</td></tr>
+            <tr><td>False positives (test set)</td><td>{{ metrics.false_positives }}</td></tr>
+            <tr><td>False negatives (test set)</td><td>{{ metrics.false_negatives }}</td></tr>
+        </table>
+        {% else %}
+        <p>No metrics available yet.</p>
+        {% endif %}
+    </div>
+
+    <div class="card">
+        <h2>Sandbox Detonation</h2>
+        <p><strong>Status:</strong> <span class="SUSPICIOUS">Simulated</span></p>
+        <p>Uses Shannon entropy analysis on file bytes to estimate whether a file is packed or encrypted, as a stand-in for full sandbox execution. Not a real detonation environment.</p>
+    </div>
+{% endblock %}

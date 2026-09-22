@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Threats & Incidents - IDS{% endblock %}
+
+{% block content %}
+    <h1>Threats &amp; Incidents</h1>
+    <p>Malicious targets grouped by occurrence — repeated hits on the same file or URL count as one incident.</p>
+
+    <div class="card">
+        <table>
+            <tr><th>Target</th><th>Occurrences</th><th>First Seen</th><th>Last Seen</th><th>Worst Verdict</th><th>Latest Reason</th></tr>
+            {% for incident in incidents %}
+            <tr>
+                <td>{{ incident.target }}</td>
+                <td>{{ incident.count }}</td>
+                <td>{{ incident.first_seen }}</td>
+                <td>{{ incident.last_seen }}</td>
+                <td class="{{ incident.worst_verdict }}">{{ incident.worst_verdict }}</td>
+                <td>{{ incident.latest_reason }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% if not incidents %}
+        <p>No incidents recorded yet.</p>
+        {% endif %}
+    </div>
+{% endblock %}
