@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>IDS Dashboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background: #f4f4f4; }
+        h1 { color: #222; }
+        .card { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        input[type=text] { width: 300px; padding: 8px; }
+        button { padding: 8px 16px; background: #3B6FE0; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { text-align: left; padding: 8px; border-bottom: 1px solid #ddd; }
+        .BLOCK { color: #D33A3A; font-weight: bold; }
+        .ALLOW { color: #159A48; font-weight: bold; }
+        .SUSPICIOUS { color: #D97706; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>IDS Dashboard — Phishing &amp; Malware Detection</h1>
+
+    <div class="card">
+        <h2>Verdict Summary</h2>
+        <canvas id="verdictChart" width="400" height="200"></canvas>
+    </div>
+
+    <div class="card">
+        <h2>Check a URL</h2>
+        <form method="POST" action="/check-url">
+            <input type="text" name="url" placeholder="Enter a URL to check" required>
+            <button type="submit">Check</button>
+        </form>
+    </div>
+
+    {% if result %}
+    <div class="card">
+        <h2>Result</h2>
+        <p><strong>Input:</strong> {{ result.url }}</p>
+        <p><strong>Verdict:</strong> <span class="{{ result.verdict }}">{{ result.verdict }}</span></p>
+        <p><strong>Reason:</strong> {{ result.reason }}</p>
+    </div>
+    {% endif %}
+
+    <div class="card">
+        <h2>Recent Activity Log</h2>
+        <label>Filter by verdict:
+            <select id="verdictFilter" onchange="filterTable()">
+                <option value="ALL">All</option>
+                <option value="ALLOW">ALLOW</option>
+                <option value="BLOCK">BLOCK</option>
+                <option value="SUSPICIOUS">SUSPICIOUS</option>
+            </select>
+        </label>
+        <table id="logTable">
+            <tr><th>Timestamp</th><th>Target</th><th>Verdict</th><th>Reason</th></tr>
+            {% for entry in log_entries %}
+            <tr class="log-row" data-verdict="{{ entry.verdict }}">
+                <td>{{ entry.timestamp }}</td>
+                <td>{{ entry.target }}</td>
+                <td class="{{ entry.verdict }}">{{ entry.verdict }}</td>
+                <td>{{ entry.reason }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+    <script>
+    function filterTable() {
+        const filter = document.getElementById("verdictFilter").value;
+        const rows = document.querySelectorAll(".log-row");
+        rows.forEach(row => {
+            if (filter === "ALL" || row.dataset.verdict === filter) {
+                row.style.display = "";
+            } else {
+                row.style.display = "none";
+            }
+        });
+    }
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+    <script>
+        const verdictCounts = {
+            ALLOW: {{ verdict_counts.ALLOW }},
+            BLOCK: {{ verdict_counts.BLOCK }},
+            SUSPICIOUS: {{ verdict_counts.SUSPICIOUS }}
+        };
+
+        new Chart(document.getElementById("verdictChart"), {
+            type: "bar",
+            data: {
+                labels: Object.keys(verdictCounts),
+                datasets: [{
+                    label: "Number of checks",
+                    data: Object.values(verdictCounts),
+                    backgroundColor: ["#159A48", "#D33A3A", "#D97706"]
+                }]
+            },
+            options: {
+                scales: { y: { beginAtZero: true } }
+            }
+        });
+    </script>
+</body>
+</html>
