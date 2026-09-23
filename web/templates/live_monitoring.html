@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Live Monitoring - IDS{% endblock %}
+
+{% block content %}
+    <h1>Live Monitoring</h1>
+    <div class="demo-banner">Real packet capture — showing live traffic metadata (source/destination IPs, protocol) from this machine's network interface. Content is not inspected since most traffic is encrypted (HTTPS).</div>
+
+    <div class="card">
+        <p>Auto-refreshing every 5 seconds.</p>
+        <table>
+            <tr><th>Timestamp</th><th>Source IP</th><th>Destination IP</th><th>Protocol</th><th>Status</th></tr>
+            {% for event in events %}
+            <tr>
+                <td>{{ event.timestamp }}</td>
+                <td>{{ event.source_ip }}</td>
+                <td>{{ event.dest_ip }}</td>
+                <td>{{ event.protocol }}</td>
+                <td class="ALLOW">{{ event.status }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% if not events %}
+        <p>No packets captured yet — generate some network traffic (browse a page) and refresh.</p>
+        {% endif %}
+    </div>
+
+    <script>
+        setTimeout(() => { window.location.reload(); }, 5000);
+    </script>
+{% endblock %}

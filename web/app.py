@@ -2,6 +2,7 @@ import sys
 import os
 import re
 import json
+import random
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
@@ -11,6 +12,9 @@ from engine.decision_engine import evaluate_url
 from logging_module.logger import LOG_FILE
 from collections import defaultdict
 from datetime import datetime
+from datetime import datetime, timedelta
+from capture.sniffer import start_capture_thread, get_captured_events
+from capture.sniffer import start_capture_thread, get_captured_events, get_protocol_breakdown
 
 app = Flask(__name__)
 
@@ -116,6 +120,54 @@ def get_report_data(log_entries):
         "total_suspicious": total_suspicious
     }
 
+def generate_live_events(count=15):
+    """Generates simulated live network events for demo purposes."""
+    protocols = ["HTTP", "HTTPS", "DNS", "FTP", "SSH"]
+    statuses = ["Allowed", "Blocked", "Flagged"]
+    sample_ips = [f"192.168.1.{i}" for i in range(2, 40)]
+
+    events = []
+    now = datetime.now()
+    for i in range(count):
+        event_time = now - timedelta(seconds=i * random.randint(5, 45))
+        events.append({
+            "timestamp": event_time.strftime("%Y-%m-%d %H:%M:%S"),
+            "source_ip": random.choice(sample_ips),
+            "dest_ip": f"{random.randint(20,220)}.{random.randint(1,255)}.{random.randint(1,255)}.{random.randint(1,255)}",
+            "protocol": random.choice(protocols),
+            "status": random.choices(statuses, weights=[80, 10, 10])[0]
+        })
+    return events
+
+
+def generate_network_stats():
+    """Generates simulated network traffic stats for demo purposes."""
+    hours = [f"{h:02d}:00" for h in range(24)]
+    traffic = [random.randint(50, 500) for _ in hours]
+    protocol_breakdown = {
+        "HTTPS": random.randint(50, 70),
+        "HTTP": random.randint(10, 25),
+        "DNS": random.randint(5, 15),
+        "Other": random.randint(2, 10)
+    }
+    return {"hours": hours, "traffic": traffic, "protocol_breakdown": protocol_breakdown}
+
+
+def generate_devices():
+    """Generates simulated device/host inventory for demo purposes."""
+    device_types = ["Laptop", "Desktop", "Mobile", "Server", "IoT Device"]
+    os_list = ["Windows 11", "Windows 10", "Ubuntu 22.04", "macOS", "Android"]
+    devices = []
+    for i in range(8):
+        devices.append({
+            "hostname": f"HOST-{1000 + i}",
+            "ip": f"192.168.1.{10 + i}",
+            "type": random.choice(device_types),
+            "os": random.choice(os_list),
+            "status": random.choices(["Online", "Offline"], weights=[75, 25])[0],
+            "last_seen": (datetime.now() - timedelta(minutes=random.randint(0, 300))).strftime("%Y-%m-%d %H:%M:%S")
+        })
+    return devices
 
 def load_settings():
     with open(SETTINGS_PATH, "r") as f:
@@ -177,6 +229,22 @@ def reports():
     report_data = get_report_data(log_entries)
     return render_template("reports.html", report=report_data, active_page="reports")
 
+@app.route("/live-monitoring")
+def live_monitoring():
+    events = get_captured_events()
+    return render_template("live_monitoring.html", events=events, active_page="live")
+
+@app.route("/network")
+def network():
+    stats = generate_network_stats()
+    stats["protocol_breakdown"] = get_protocol_breakdown()
+    return render_template("network.html", stats=stats, active_page="network")
+
+@app.route("/devices")
+def devices():
+    device_list = generate_devices()
+    return render_template("devices.html", devices=device_list, active_page="devices")
+
 
 @app.route("/settings", methods=["GET"])
 def settings_page():
@@ -196,4 +264,6 @@ def update_settings():
 
 
 if __name__ == "__main__":
+    if os.environ.get("WERKZEUG_RUN_MAIN") == "true" or not app.debug:
+        start_capture_thread()
     app.run(debug=True)

@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Network Traffic - IDS{% endblock %}
+
+{% block content %}
+    <h1>Network Traffic</h1>
+<div class="demo-banner">Protocol breakdown below uses real captured packet data. Hourly traffic trend is simulated (a rolling capture buffer doesn't retain a full day's history).</div>
+    <div class="card">
+        <h2>Hourly Traffic Volume</h2>
+        <canvas id="trafficChart" width="400" height="200"></canvas>
+    </div>
+
+    <div class="card">
+        <h2>Protocol Breakdown</h2>
+        <canvas id="protocolChart" width="400" height="200"></canvas>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+    <script>
+        const hours = {{ stats.hours | tojson }};
+        const traffic = {{ stats.traffic | tojson }};
+        const protocolBreakdown = {{ stats.protocol_breakdown | tojson }};
+
+        new Chart(document.getElementById("trafficChart"), {
+            type: "line",
+            data: { labels: hours, datasets: [{ label: "Requests", data: traffic, borderColor: "#3B6FE0", backgroundColor: "#3B6FE0" }] },
+            options: { scales: { y: { beginAtZero: true } } }
+        });
+
+        new Chart(document.getElementById("protocolChart"), {
+            type: "bar",
+            data: {
+                labels: Object.keys(protocolBreakdown),
+                datasets: [{ label: "% of traffic", data: Object.values(protocolBreakdown), backgroundColor: ["#159A48", "#3B6FE0", "#D97706", "#8B5CF6"] }]
+            },
+            options: { scales: { y: { beginAtZero: true } } }
+        });
+    </script>
+{% endblock %}
