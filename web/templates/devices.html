@@ -3,21 +3,24 @@
 
 {% block content %}
     <h1>Devices / Hosts</h1>
-    <div class="demo-banner">Demo Mode — this inventory shows simulated devices. Real device discovery is not yet implemented.</div>
-
-    <div class="card">
-        <table>
-            <tr><th>Hostname</th><th>IP</th><th>Type</th><th>OS</th><th>Status</th><th>Last Seen</th></tr>
-            {% for device in devices %}
-            <tr>
-                <td>{{ device.hostname }}</td>
-                <td>{{ device.ip }}</td>
-                <td>{{ device.type }}</td>
-                <td>{{ device.os }}</td>
-                <td class="{% if device.status == 'Online' %}ALLOW{% else %}BLOCK{% endif %}">{{ device.status }}</td>
-                <td>{{ device.last_seen }}</td>
-            </tr>
-            {% endfor %}
-        </table>
+    <div class="demo-banner">Real ARP scan of your local network. OS detection is not implemented — genuine OS fingerprinting requires deeper packet analysis beyond this project's scope.</div>    <div class="card">
+    <table>
+    <tr><th>Hostname</th><th>IP</th><th>MAC Address</th><th>OS</th><th>Status</th></tr>
+    {% for device in devices %}
+    <tr>
+        <td>{{ device.hostname }}</td>
+        <td>{{ device.ip }}</td>
+        <td>{{ device.mac }}</td>
+        <td>{{ device.os }}</td>
+        <td class="ALLOW">{{ device.status }}</td>
+    </tr>
+    {% endfor %}
+    </table>
+{% if not devices %}
+<p>No devices found.</p>
+{% endif %}
+{% if not devices %}
+<p>No devices found.</p>
+{% endif %}
     </div>
 {% endblock %}

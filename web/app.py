@@ -4,6 +4,7 @@ import re
 import json
 import random
 
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from flask import Flask, render_template, request
@@ -15,6 +16,7 @@ from datetime import datetime
 from datetime import datetime, timedelta
 from capture.sniffer import start_capture_thread, get_captured_events
 from capture.sniffer import start_capture_thread, get_captured_events, get_protocol_breakdown
+from capture.network_scan import scan_devices
 
 app = Flask(__name__)
 
@@ -242,9 +244,8 @@ def network():
 
 @app.route("/devices")
 def devices():
-    device_list = generate_devices()
+    device_list = scan_devices()
     return render_template("devices.html", devices=device_list, active_page="devices")
-
 
 @app.route("/settings", methods=["GET"])
 def settings_page():
