@@ -9,6 +9,8 @@ from flask import Flask, render_template, request
 
 from engine.decision_engine import evaluate_url
 from logging_module.logger import LOG_FILE
+from collections import defaultdict
+from datetime import datetime
 
 app = Flask(__name__)
 
@@ -84,6 +86,37 @@ def get_incidents(log_entries):
     return sorted(grouped.values(), key=lambda x: x["count"], reverse=True)
 
 
+
+def get_report_data(log_entries):
+    """Aggregates log entries into daily verdict counts and top targets."""
+    daily_counts = defaultdict(lambda: {"ALLOW": 0, "BLOCK": 0, "SUSPICIOUS": 0})
+    target_counts = defaultdict(int)
+
+    for entry in log_entries:
+        date = entry["timestamp"].split(" ")[0]
+        verdict = entry["verdict"]
+        if verdict in ("ALLOW", "BLOCK", "SUSPICIOUS"):
+            daily_counts[date][verdict] += 1
+        if verdict in ("BLOCK", "SUSPICIOUS"):
+            target_counts[entry["target"]] += 1
+
+    sorted_dates = sorted(daily_counts.keys())
+    top_targets = sorted(target_counts.items(), key=lambda x: x[1], reverse=True)[:5]
+
+    total_checks = len(log_entries)
+    total_blocked = sum(1 for e in log_entries if e["verdict"] == "BLOCK")
+    total_suspicious = sum(1 for e in log_entries if e["verdict"] == "SUSPICIOUS")
+
+    return {
+        "dates": sorted_dates,
+        "daily_counts": daily_counts,
+        "top_targets": top_targets,
+        "total_checks": total_checks,
+        "total_blocked": total_blocked,
+        "total_suspicious": total_suspicious
+    }
+
+
 def load_settings():
     with open(SETTINGS_PATH, "r") as f:
         return json.load(f)
@@ -137,6 +170,12 @@ def detection_engine():
         with open("data/model_metrics.json", "r") as f:
             metrics = json.load(f)
     return render_template("detection_engine.html", metrics=metrics, active_page="engine")
+
+@app.route("/reports")
+def reports():
+    log_entries = get_recent_logs(limit=500)
+    report_data = get_report_data(log_entries)
+    return render_template("reports.html", report=report_data, active_page="reports")
 
 
 @app.route("/settings", methods=["GET"])

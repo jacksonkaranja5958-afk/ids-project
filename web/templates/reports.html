@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Reports - IDS{% endblock %}
+
+{% block content %}
+    <h1>Reports</h1>
+
+    <div class="card">
+        <h2>Overview</h2>
+        <p>Total checks: <strong>{{ report.total_checks }}</strong></p>
+        <p>Blocked: <strong class="BLOCK">{{ report.total_blocked }}</strong></p>
+        <p>Suspicious: <strong class="SUSPICIOUS">{{ report.total_suspicious }}</strong></p>
+    </div>
+
+    <div class="card">
+        <h2>Daily Activity</h2>
+        <canvas id="dailyChart" width="400" height="200"></canvas>
+    </div>
+
+    <div class="card">
+        <h2>Top 5 Flagged Targets</h2>
+        <table>
+            <tr><th>Target</th><th>Times Flagged</th></tr>
+            {% for target, count in report.top_targets %}
+            <tr><td>{{ target }}</td><td>{{ count }}</td></tr>
+            {% endfor %}
+        </table>
+        {% if not report.top_targets %}
+        <p>No flagged targets yet.</p>
+        {% endif %}
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+    <script>
+        const dailyCounts = {{ report.daily_counts | tojson }};
+        const dates = {{ report.dates | tojson }};
+        const allowData = dates.map(d => dailyCounts[d].ALLOW);
+        const blockData = dates.map(d => dailyCounts[d].BLOCK);
+        const suspiciousData = dates.map(d => dailyCounts[d].SUSPICIOUS);
+
+        new Chart(document.getElementById("dailyChart"), {
+            type: "line",
+            data: {
+                labels: dates,
+                datasets: [
+                    { label: "Allow", data: allowData, borderColor: "#159A48", backgroundColor: "#159A48" },
+                    { label: "Block", data: blockData, borderColor: "#D33A3A", backgroundColor: "#D33A3A" },
+                    { label: "Suspicious", data: suspiciousData, borderColor: "#D97706", backgroundColor: "#D97706" }
+                ]
+            },
+            options: { scales: { y: { beginAtZero: true } } }
+        });
+    </script>
+{% endblock %}
