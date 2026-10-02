@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SentinelX — Intrusion Detection System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --bg: #070C16; --surface: rgba(17, 26, 46, 0.55); --border: rgba(255,255,255,0.08);
+            --accent: #2DD4BF; --text: #E2E8F0; --text-dim: #8B98B3;
+            --green: #34D399; --red: #F87171; --amber: #FBBF24;
+        }
+        body {
+            font-family: 'Inter', Arial, sans-serif; background: var(--bg); color: var(--text);
+            background-image: radial-gradient(circle at 1px 1px, rgba(45,212,191,0.09) 1px, transparent 0),
+                               url('/static/network-bg.svg');
+            background-size: 28px 28px, 900px 1350px;
+            background-repeat: repeat, no-repeat;
+            background-position: 0 0, center top;
+        }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        a { color: inherit; text-decoration: none; }
+
+        nav {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 20px 48px; border-bottom: 1px solid var(--border);
+            background: var(--surface); backdrop-filter: blur(16px); position: sticky; top: 0; z-index: 10;
+        }
+        .logo { font-size: 18px; font-weight: 800; letter-spacing: 0.02em; text-shadow: 0 0 18px rgba(45,212,191,0.4); }
+        .nav-links { display: flex; gap: 32px; font-size: 13.5px; color: var(--text-dim); }
+        .nav-links a:hover { color: var(--accent); }
+        .cta-btn {
+            padding: 10px 20px; background: var(--accent); color: #06201C; font-weight: 600;
+            font-size: 13px; border-radius: 5px;
+        }
+
+        section { padding: 90px 48px; max-width: 980px; margin: 0 auto; }
+        .hero { text-align: center; padding-top: 120px; padding-bottom: 100px; }
+        .status-pill {
+            display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px;
+            background: rgba(52,211,153,0.1); border: 1px solid rgba(52,211,153,0.3);
+            border-radius: 20px; font-size: 11px; font-weight: 600; letter-spacing: 0.05em; color: var(--green);
+            margin-bottom: 24px;
+        }
+        .status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); box-shadow: 0 0 6px var(--green); animation: pulse 1.6s ease-in-out infinite; }
+        @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+        .hero h1 { font-size: 44px; font-weight: 800; line-height: 1.15; letter-spacing: -0.01em; margin-bottom: 18px; }
+        .hero p { font-size: 16px; color: var(--text-dim); max-width: 560px; margin: 0 auto 36px; line-height: 1.6; }
+        .hero-btns { display: flex; gap: 14px; justify-content: center; }
+        .btn-secondary { padding: 12px 24px; border: 1px solid var(--border); border-radius: 5px; font-size: 14px; font-weight: 500; }
+        .btn-primary { padding: 12px 24px; background: var(--accent); color: #06201C; border-radius: 5px; font-size: 14px; font-weight: 600; }
+
+        .stat-row { display: flex; gap: 40px; justify-content: center; margin-top: 60px; flex-wrap: wrap; }
+        .stat { text-align: center; }
+        .stat-num { font-size: 26px; font-weight: 800; color: var(--accent); font-family: 'JetBrains Mono', monospace; }
+        .stat-label { font-size: 11.5px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 4px; }
+
+        .eyebrow { font-size: 12px; color: var(--accent); font-weight: 600; letter-spacing: 0.08em; margin-bottom: 10px; }
+        h2.section-title { font-size: 28px; font-weight: 700; margin-bottom: 12px; }
+        .section-intro { color: var(--text-dim); font-size: 14.5px; max-width: 620px; margin-bottom: 44px; line-height: 1.6; }
+
+        .feature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+        .feature-card {
+            background: var(--surface); backdrop-filter: blur(14px); border: 1px solid var(--border);
+            border-radius: 8px; padding: 22px;
+        }
+        .feature-card h3 { font-size: 15px; font-weight: 600; margin-bottom: 8px; }
+        .feature-card p { font-size: 13px; color: var(--text-dim); line-height: 1.55; }
+        .tag { display: inline-block; font-size: 10px; font-weight: 600; letter-spacing: 0.04em; padding: 2px 8px; border-radius: 4px; margin-bottom: 10px; }
+        .tag.real { background: rgba(52,211,153,0.12); color: var(--green); border: 1px solid rgba(52,211,153,0.3); }
+        .tag.sim { background: rgba(251,191,36,0.1); color: var(--amber); border: 1px solid rgba(251,191,36,0.3); }
+
+        .steps { display: flex; flex-direction: column; gap: 0; }
+        .step { display: flex; gap: 20px; padding: 22px 0; border-bottom: 1px solid var(--border); }
+        .step:last-child { border-bottom: none; }
+        .step-num { font-family: 'JetBrains Mono', monospace; color: var(--accent); font-weight: 600; font-size: 14px; min-width: 28px; }
+        .step h4 { font-size: 14.5px; font-weight: 600; margin-bottom: 4px; }
+        .step p { font-size: 13px; color: var(--text-dim); line-height: 1.55; }
+
+        .doc-links { display: flex; gap: 14px; flex-wrap: wrap; }
+        .doc-link {
+            display: flex; align-items: center; gap: 10px; padding: 14px 18px;
+            background: var(--surface); border: 1px solid var(--border); border-radius: 7px; font-size: 13.5px; font-weight: 500;
+        }
+        .doc-link:hover { border-color: var(--accent); color: var(--accent); }
+
+        .demo-preview {
+            background: var(--surface); backdrop-filter: blur(14px); border: 1px solid var(--border);
+            border-radius: 10px; padding: 36px; text-align: center;
+        }
+        .demo-preview p { color: var(--text-dim); font-size: 14px; margin-bottom: 20px; }
+
+        .contact-card {
+            background: var(--surface); backdrop-filter: blur(14px); border: 1px solid var(--border);
+            border-radius: 10px; padding: 32px; display: flex; flex-wrap: wrap; gap: 28px; justify-content: space-between; align-items: center;
+        }
+        .contact-links { display: flex; gap: 22px; flex-wrap: wrap; font-size: 13.5px; }
+        .contact-links a:hover { color: var(--accent); }
+
+        footer { text-align: center; padding: 32px; color: var(--text-dim); font-size: 12px; border-top: 1px solid var(--border); }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="logo">SentinelX</div>
+        <div class="nav-links">
+            <a href="#home">Home</a>
+            <a href="#about">About</a>
+            <a href="#features">Features</a>
+            <a href="#how-it-works">How It Works</a>
+            <a href="#documentation">Documentation</a>
+            <a href="#demo">Demo</a>
+            <a href="#contact">Contact</a>
+        </div>
+        <a href="/dashboard" class="cta-btn">Launch Dashboard</a>
+    </nav>
+
+    <section id="home" class="hero">
+        <div class="status-pill"><span class="status-dot"></span>SYSTEM ACTIVE</div>
+        <h1>Phishing and malware,<br>caught before they land.</h1>
+        <p>SentinelX inspects files and URLs through four detection layers, then decides — allow, block, or escalate — before anything reaches you.</p>
+        <div class="hero-btns">
+            <a href="/dashboard" class="btn-primary">Launch Dashboard</a>
+            <a href="https://github.com/jacksonkaranja5958-afk/ids-project" class="btn-secondary">View Source</a>
+        </div>
+        <div class="stat-row">
+            <div class="stat"><div class="stat-num">99.75%</div><div class="stat-label">ML Test Accuracy</div></div>
+            <div class="stat"><div class="stat-num">4</div><div class="stat-label">Detection Layers</div></div>
+            <div class="stat"><div class="stat-num">10</div><div class="stat-label">Dashboard Views</div></div>
+            <div class="stat"><div class="stat-num">18</div><div class="stat-label">Passing Tests</div></div>
+        </div>
+    </section>
+
+    <section id="about">
+        <div class="eyebrow">About</div>
+        <h2 class="section-title">A working IDS, built from scratch</h2>
+        <p class="section-intro">
+            SentinelX started as a first software project and grew into a full intrusion detection system —
+            hash matching, heuristic analysis, a trained machine learning classifier, and a simulated sandbox,
+            wired into a decision engine and a live operations dashboard. Every module is real and tested;
+            where something is simulated (sandbox detonation, hourly traffic history), it's labeled honestly rather than faked.
+        </p>
+    </section>
+
+    <section id="features">
+        <div class="eyebrow">Features</div>
+        <h2 class="section-title">Four detection layers, one verdict</h2>
+        <p class="section-intro">Each module catches a different class of threat. Together they cover what any single technique misses.</p>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <span class="tag real">REAL</span>
+                <h3>Hash Matching</h3>
+                <p>SHA-256 fingerprinting against known-malicious hashes. Instant, near-zero false positives.</p>
+            </div>
+            <div class="feature-card">
+                <span class="tag real">REAL</span>
+                <h3>Heuristic Analysis</h3>
+                <p>Catches disguised files like invoice.pdf.exe using generic safe-vs-dangerous extension pattern matching.</p>
+            </div>
+            <div class="feature-card">
+                <span class="tag real">REAL</span>
+                <h3>ML Phishing Classifier</h3>
+                <p>Random Forest model trained on 30,000 real URLs, 17 lexical features, 99.75% test accuracy.</p>
+            </div>
+            <div class="feature-card">
+                <span class="tag sim">SIMULATED</span>
+                <h3>Sandbox Detonation</h3>
+                <p>Shannon entropy analysis on file bytes stands in for real isolated execution — documented as such.</p>
+            </div>
+            <div class="feature-card">
+                <span class="tag real">REAL</span>
+                <h3>Live Packet Capture</h3>
+                <p>Scapy-based network sniffing shows real traffic metadata on your machine's interface.</p>
+            </div>
+            <div class="feature-card">
+                <span class="tag real">REAL</span>
+                <h3>ARP Device Discovery</h3>
+                <p>Live scan of your local subnet, returning real IPs and MAC addresses of connected devices.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="how-it-works">
+        <div class="eyebrow">How It Works</div>
+        <h2 class="section-title">Request to verdict</h2>
+        <div class="steps">
+            <div class="step"><div class="step-num">01</div><div><h4>Input received</h4><p>A file path or URL is submitted through the dashboard or CLI.</p></div></div>
+            <div class="step"><div class="step-num">02</div><div><h4>Parallel detection</h4><p>Hash matching, heuristic analysis, and the ML classifier run immediately.</p></div></div>
+            <div class="step"><div class="step-num">03</div><div><h4>Escalation if suspicious</h4><p>Disguised files are escalated to sandbox entropy analysis for a deeper read.</p></div></div>
+            <div class="step"><div class="step-num">04</div><div><h4>Decision &amp; logging</h4><p>A verdict — Allow, Block, or Suspicious — is issued and permanently logged.</p></div></div>
+            <div class="step"><div class="step-num">05</div><div><h4>Dashboard visibility</h4><p>Every decision surfaces across Alerts, Incidents, Reports, and Logs in real time.</p></div></div>
+        </div>
+    </section>
+
+    <section id="documentation">
+        <div class="eyebrow">Documentation</div>
+        <h2 class="section-title">Read the details</h2>
+        <div class="doc-links">
+            <a href="https://github.com/jacksonkaranja5958-afk/ids-project" class="doc-link">GitHub Repository</a>
+            <a href="https://github.com/jacksonkaranja5958-afk/ids-project/blob/main/README.md" class="doc-link">README &amp; Setup Guide</a>
+        </div>
+    </section>
+
+    <section id="demo">
+        <div class="eyebrow">Demo</div>
+        <h2 class="section-title">See it running</h2>
+        <div class="demo-preview">
+            <p>The dashboard runs live — real detection logic, real packet capture, real device discovery.</p>
+            <a href="/dashboard" class="btn-primary">Launch Dashboard →</a>
+        </div>
+    </section>
+
+    <section id="contact">
+        <div class="eyebrow">Contact</div>
+        <h2 class="section-title">Get in touch</h2>
+        <div class="contact-card">
+            <div>Built by Jackson Karanja Kihiko</div>
+            <div class="contact-links">
+                <a href="mailto:jacksonkaranja5958@gmail.com">Email</a>
+                <a href="https://linkedin.com/in/jackson-karanja-6655b5303">LinkedIn</a>
+                <a href="https://github.com/jacksonkaranja5958-afk">GitHub</a>
+                <a href="https://jackpage1.onrender.com">Portfolio</a>
+            </div>
+        </div>
+    </section>
+
+    <footer>SentinelX — Intrusion Detection System · Built by Jackson Karanja Kihiko</footer>
+</body>
+</html>

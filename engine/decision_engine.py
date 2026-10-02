@@ -7,9 +7,29 @@ from detection.hash_matcher import compute_file_hash, check_hash
 from detection.heuristic_analyzer import check_double_extension
 from detection.ml_classifier import load_model, check_phishing_url
 from detection.sandbox import simulate_detonation
-from logging_module.logger import log_verdict
+from logging_module.logger import log_verdict, ids_logger
 
-phishing_model = load_model()
+TRUSTED_DOMAINS = [
+    "linkedin.com", "github.com", "google.com", "microsoft.com",
+    "apple.com", "amazon.com", "facebook.com", "twitter.com", "x.com",
+    "youtube.com", "wikipedia.org", "stackoverflow.com", "render.com",
+    "onrender.com", "jackpage1.onrender.com"
+]
+
+
+def is_trusted_domain(url):
+    """Checks if a URL's domain matches a known-legitimate domain, bypassing the ML classifier."""
+    from urllib.parse import urlparse
+    parsed = urlparse(url)
+    domain = parsed.netloc.lower()
+
+    if domain.startswith("www."):
+        domain = domain[4:]
+
+    for trusted in TRUSTED_DOMAINS:
+        if domain == trusted or domain.endswith("." + trusted):
+            return True
+    return False
 
 
 phishing_model = load_model()
@@ -59,6 +79,15 @@ def evaluate_file(file_path):
 
 def evaluate_url(url):
     """Runs phishing detection on a URL and returns a verdict."""
+    if is_trusted_domain(url):
+        result = {
+            "url": url,
+            "verdict": "ALLOW",
+            "reason": "Trusted domain (allowlisted)"
+        }
+        ids_logger.info(f"URL={url} | VERDICT=ALLOW | REASON=Trusted domain (allowlisted)")
+        return result
+
     is_phishing = check_phishing_url(url, phishing_model)
 
     if is_phishing:
@@ -76,10 +105,8 @@ def evaluate_url(url):
 
     log_message = f"URL={url} | VERDICT={verdict} | REASON={reason}"
     if verdict == "BLOCK":
-        from logging_module.logger import ids_logger
         ids_logger.warning(log_message)
     else:
-        from logging_module.logger import ids_logger
         ids_logger.info(log_message)
 
     return result

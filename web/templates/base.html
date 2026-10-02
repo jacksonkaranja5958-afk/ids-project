@@ -1,45 +1,222 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>{% block title %}IDS Dashboard{% endblock %}</title>
+    <title>{% block title %}SentinelX{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
-        * { box-sizing: border-box; }
-        body { font-family: Arial, sans-serif; margin: 0; display: flex; background: #f4f4f4; }
+    * { box-sizing: border-box; }
+    :root {
+        --bg: #070C16;
+        --surface: rgba(17, 26, 46, 0.55);
+        --surface-solid: #111A2E;
+        --border: rgba(255, 255, 255, 0.07);
+        --accent: #2DD4BF;
+        --accent-dim: rgba(45, 212, 191, 0.14);
+        --text: #E2E8F0;
+        --text-dim: #8B98B3;
+        --green: #34D399;
+        --red: #F87171;
+        --amber: #FBBF24;
+    }
 
-        .sidebar {
-            width: 220px;
-            background: #1F2430;
-            color: white;
-            min-height: 100vh;
-            padding: 20px 0;
-        }
-        .sidebar h2 { padding: 0 20px; font-size: 18px; margin-bottom: 20px; }
-        .sidebar a {
-            display: block;
-            padding: 12px 20px;
-            color: #C5C8D0;
-            text-decoration: none;
-            font-size: 14px;
-        }
-        .sidebar a:hover { background: #2B303B; color: white; }
-        .sidebar a.active { background: #3B6FE0; color: white; }
+    @keyframes driftGrid {
+        0%   { background-position: 0 0, 0 0; }
+        100% { background-position: 60px 60px, -40px 30px; }
+    }
 
-        .main { flex: 1; padding: 30px; }
-        .card { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        input[type=text] { width: 300px; padding: 8px; }
-        button { padding: 8px 16px; background: #3B6FE0; color: white; border: none; border-radius: 4px; cursor: pointer; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { text-align: left; padding: 8px; border-bottom: 1px solid #ddd; }
-        .BLOCK { color: #D33A3A; font-weight: bold; }
-        .ALLOW { color: #159A48; font-weight: bold; }
-        .SUSPICIOUS { color: #D97706; font-weight: bold; }
-        .demo-banner { background: #FFF4E0; border: 1px solid #D97706; color: #92400E; padding: 10px 16px; border-radius: 6px; margin-bottom: 20px; font-size: 13px; }
-    </style>
+    body {
+        font-family: 'Inter', Arial, sans-serif;
+        margin: 0;
+        display: flex;
+        background-color: var(--bg);
+        background-image:
+            radial-gradient(circle at 1px 1px, rgba(45, 212, 191, 0.09) 1px, transparent 0),
+            url('/static/network-bg.svg');
+        background-size: 28px 28px, 900px 1350px;
+        background-repeat: repeat, no-repeat;
+        background-position: 0 0, center top;
+        background-attachment: fixed, fixed;
+        animation: driftGrid 70s linear infinite;
+        color: var(--text);
+        min-height: 100vh;
+    }
+    code, .mono { font-family: 'JetBrains Mono', monospace; }
+
+    .sidebar {
+        width: 230px;
+        background: var(--surface);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+        border-right: 1px solid var(--border);
+        min-height: 100vh;
+        padding: 24px 0;
+        flex-shrink: 0;
+        display: flex;
+        flex-direction: column;
+    }
+    .sidebar h2 {
+        padding: 0 20px;
+        font-size: 15px;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        margin: 0 0 24px 0;
+        color: var(--text);
+    }
+    .sidebar h2::before { content: "▸ "; color: var(--accent); }
+    .sidebar nav { display: flex; flex-direction: column; gap: 4px; }
+    .sidebar a {
+        display: block;
+        padding: 11px 20px;
+        color: var(--text-dim);
+        text-decoration: none;
+        font-size: 13.5px;
+        border-left: 2px solid transparent;
+        transition: background 0.15s, border-color 0.15s, color 0.15s;
+    }
+    .sidebar a:hover { background: rgba(255,255,255,0.04); color: var(--text); }
+    .sidebar a.active {
+        background: var(--accent-dim);
+        color: var(--accent);
+        border-left: 2px solid var(--accent);
+        font-weight: 500;
+    }
+
+    .main { flex: 1; padding: 36px 40px; max-width: 1100px; }
+    h1 {
+        font-size: 22px;
+        font-weight: 700;
+        margin: 0 0 20px 0;
+        color: var(--text);
+        text-shadow: 0 0 24px rgba(45, 212, 191, 0.3);
+    }
+   .brand {
+    padding: 0 20px 20px 20px;
+    margin-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+}
+.brand-name {
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    color: var(--text);
+    text-shadow: 0 0 18px rgba(45, 212, 191, 0.35);
+}
+.brand-sub {
+    font-size: 10.5px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-top: 2px;
+}
+.status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 12px;
+    padding: 4px 10px;
+    background: rgba(52, 211, 153, 0.1);
+    border: 1px solid rgba(52, 211, 153, 0.3);
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    color: var(--green);
+}
+.status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 6px var(--green);
+    animation: pulse 1.6s ease-in-out infinite;
+}
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.35; }
+}
+
+    .card {
+        background: var(--surface);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        border: 1px solid var(--border);
+        padding: 20px 22px;
+        border-radius: 8px;
+        margin-bottom: 18px;
+    }
+
+    input[type=text], input[type=number], select {
+        width: 300px;
+        padding: 9px 12px;
+        background: rgba(7, 12, 22, 0.6);
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        color: var(--text);
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 13px;
+    }
+    input:focus, select:focus { outline: 1px solid var(--accent); border-color: var(--accent); }
+
+    button {
+        padding: 9px 18px;
+        background: var(--accent);
+        color: #06201C;
+        border: none;
+        border-radius: 4px;
+        font-weight: 600;
+        font-size: 13px;
+        cursor: pointer;
+    }
+    button:hover { background: #5EEAD4; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th {
+        text-align: left;
+        padding: 10px 8px;
+        border-bottom: 1px solid var(--border);
+        color: var(--text-dim);
+        font-weight: 500;
+        font-size: 11.5px;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }
+    td {
+        text-align: left;
+        padding: 10px 8px;
+        border-bottom: 1px solid var(--border);
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 12.5px;
+        color: var(--text);
+    }
+
+    .BLOCK {
+        color: var(--red);
+        font-weight: 600;
+        text-shadow: 0 0 10px rgba(248, 113, 113, 0.55);
+    }
+    .ALLOW { color: var(--green); font-weight: 600; }
+    .SUSPICIOUS { color: var(--amber); font-weight: 600; }
+
+    .demo-banner {
+        background: rgba(251, 191, 36, 0.08);
+        border: 1px solid rgba(251, 191, 36, 0.35);
+        color: #FCD34D;
+        padding: 10px 16px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+        font-size: 12.5px;
+    }
+</style>
 </head>
 <body>
     <div class="sidebar">
-        <h2>IDS System</h2>
-        <a href="/" class="{% if active_page == 'dashboard' %}active{% endif %}">Dashboard</a>
+    <div class="brand">
+        <div class="brand-name">SentinelX</div>
+        <div class="brand-sub">Intrusion Detection System</div>
+        <div class="status-pill"><span class="status-dot"></span>SYSTEM ACTIVE</div>
+    </div>
+    <nav>
+        <a href="/dashboard" class="{% if active_page == 'dashboard' %}active{% endif %}">Dashboard</a>
         <a href="/live-monitoring" class="{% if active_page == 'live' %}active{% endif %}">Live Monitoring</a>
         <a href="/alerts" class="{% if active_page == 'alerts' %}active{% endif %}">Alerts</a>
         <a href="/incidents" class="{% if active_page == 'incidents' %}active{% endif %}">Threats / Incidents</a>

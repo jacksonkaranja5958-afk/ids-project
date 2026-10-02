@@ -17,6 +17,7 @@ from datetime import datetime, timedelta
 from capture.sniffer import start_capture_thread, get_captured_events
 from capture.sniffer import start_capture_thread, get_captured_events, get_protocol_breakdown
 from capture.network_scan import scan_devices
+from flask import jsonify
 
 app = Flask(__name__)
 
@@ -180,13 +181,15 @@ def save_settings(settings):
     with open(SETTINGS_PATH, "w") as f:
         json.dump(settings, f, indent=2)
 
-
 @app.route("/")
+def landing():
+    return render_template("landing.html")
+
+@app.route("/dashboard")
 def home():
     log_entries = get_recent_logs()
     verdict_counts = get_verdict_counts(log_entries)
     return render_template("dashboard.html", result=None, log_entries=log_entries, verdict_counts=verdict_counts, active_page="dashboard")
-
 
 @app.route("/check-url", methods=["POST"])
 def check_url():
@@ -262,6 +265,19 @@ def update_settings():
     }
     save_settings(settings)
     return render_template("settings.html", settings=settings, saved=True, active_page="settings")
+
+@app.route("/api/check-url", methods=["POST"])
+def api_check_url():
+    data = request.get_json()
+    url = data.get("url", "")
+
+    if not url:
+        return jsonify({"error": "No URL provided"}), 400
+
+    result = evaluate_url(url)
+    response = jsonify(result)
+    response.headers.add("Access-Control-Allow-Origin", "*")
+    return response
 
 
 if __name__ == "__main__":

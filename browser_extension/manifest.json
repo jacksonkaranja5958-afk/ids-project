@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "SentinelX Link Guard",
+  "version": "1.0",
+  "description": "Checks links against SentinelX before you navigate to them.",
+  "permissions": ["activeTab", "scripting"],
+  "host_permissions": ["http://127.0.0.1:5000/*", "<all_urls>"],
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_start"
+    }
+  ]
+}

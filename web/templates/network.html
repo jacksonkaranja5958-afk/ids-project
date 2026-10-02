@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Network Traffic - IDS{% endblock %}
+{% block title %}Network Traffic - SentinelX{% endblock %}
 
 {% block content %}
     <h1>Network Traffic</h1>
@@ -22,7 +22,7 @@
 
         new Chart(document.getElementById("trafficChart"), {
             type: "line",
-            data: { labels: hours, datasets: [{ label: "Requests", data: traffic, borderColor: "#3B6FE0", backgroundColor: "#3B6FE0" }] },
+            data: { labels: hours, datasets: [{ label: "Requests", data: traffic, borderColor: "#22D3EE", backgroundColor: "rgba(34, 211, 238, 0.15)", fill: true }]
             options: { scales: { y: { beginAtZero: true } } }
         });
 
