@@ -31,8 +31,10 @@ def _packet_handler(packet):
 
 def _capture_loop():
     """Runs forever in a background thread, feeding packets to _packet_handler."""
-    sniff(prn=_packet_handler, store=False)
-
+    try:
+        sniff(prn=_packet_handler, store=False)
+    except Exception as e:
+        print(f"Packet capture unavailable in this environment: {e}")
 
 def start_capture_thread():
     """Starts packet capture in a background daemon thread."""
